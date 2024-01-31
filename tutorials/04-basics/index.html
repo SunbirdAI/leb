@@ -54,6 +54,8 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Beginner</a>
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" href="./">Basics</a>
+    <ul class="current">
+    </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../05-data-exploration/">Data Exploration</a>
                 </li>
@@ -116,7 +118,51 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                
+                <h3 id="one-to-multiple-translation-english-text-to-luganda-and-acholi-text">one-to-multiple translation: English text to Luganda and Acholi text</h3>
+<pre><code class="language-python">
+import sys
+sys.path.append('../..')
+import leb.dataset
+import leb.utils
+import yaml
+
+</code></pre>
+<p>set up the configs</p>
+<pre><code class="language-python">
+yaml_config = '''
+huggingface_load:   
+  path: Sunbird/salt
+  split: train
+  name: text-all
+source:
+  type: text
+  language: eng
+  preprocessing:
+      - prefix_target_language
+target:
+  type: text
+  language: [lug, ach]
+'''
+
+config = yaml.safe_load(yaml_config)
+ds = leb.dataset.create(config)
+list(ds.take(5))
+
+</code></pre>
+<p>output</p>
+<pre><code>[{'source': '&gt;&gt;lug&lt;&lt; Eggplants always grow best under warm conditions.',
+  'target': 'Bbiringanya lubeerera  asinga kukulira mu mbeera ya bugumu'},
+ {'source': '&gt;&gt;ach&lt;&lt; Eggplants always grow best under warm conditions.',
+  'target': 'Bilinyanya pol kare dongo maber ka lyeto tye'},
+ {'source': '&gt;&gt;lug&lt;&lt; Farmland is sometimes a challenge to farmers.',
+  'target': &quot;Ettaka ly'okulimirako n'okulundirako ebiseera ebimu kisoomooza abalimi&quot;},
+ {'source': '&gt;&gt;ach&lt;&lt; Farmland is sometimes a challenge to farmers.',
+  'target': 'Ngom me pur i kare mukene obedo peko madit bot lupur'},
+ {'source': '&gt;&gt;lug&lt;&lt; Farmers should be encouraged to grow more coffee.',
+  'target': 'Abalimi balina okukubirizibwa okwongera okulima emmwanyi'}]
+
+</code></pre>
+<p>This is how a basic data loader works</p>
               
             </div>
           </div><footer>
