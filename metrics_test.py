@@ -45,6 +45,37 @@ class MultilingualEvalUnitTest(unittest.TestCase):
         # Assert function calls of tokenizer
         mock_tokenizer.batch_decode.assert_called()
         
+    def test_create_metrics_fn(self):
+        
+        mock_tokenizer = create_mock_tokenizer()
+
+        predictions = np.array([[1, 2, 3, 4], [4, 5, 6, 6]])
+        labels = np.array([[1, 2, 3, 4], [4, 5, 3, 6]])
+
+        eval_preds = (predictions, labels)
+        source_language = ['lug', 'ach']
+        target_language = ['nyn', 'teo']
+        eval_dataset = {
+            'source.language': source_language,
+            'target.language': target_language,
+        }
+        
+        metrics = [evaluate.load('sacrebleu'),
+                   evaluate.load('wer'),
+                   evaluate.load('cer'),
+                  ]
+        
+        compute_metrics = multilingual_eval_fn(
+            eval_dataset,
+            metrics,
+            mock_tokenizer,
+        )
+        
+        result = compute_metrics(eval_preds)
+
+        self.assertAlmostEqual(result['BLEU_lug_nyn'], 100.0)
+        self.assertAlmostEqual(result['BLEU_ach_teo'], 35.355)   
+        self.assertAlmostEqual(result['CER_ach_teo'], 0.143)
 
 if __name__ == '__main__':
     unittest.main()

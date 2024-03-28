@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import functools
+import numbers
 
 
 def multilingual_eval(eval_preds,
@@ -71,11 +72,15 @@ def multilingual_eval(eval_preds,
             if metric_name == 'BLEU':
                 # The sacrebleu and bleu implementations have different formats
                 r = result_subset.get('score') or result_subset.get('bleu')
-            elif metric_name == 'WER':
-                r = result_subset
             else:
-                raise ValueError('Only BLEU and WER metrics currently '
-                                 'supported.')
+                if not isinstance(result_subset, numbers.Number):
+                    raise ValueError(
+                        'Expected a metric that yields a single value, but the '
+                        f'result from metric "{metric_name.lower()}" was '
+                        f'{result_subset}. Supported metrics include '
+                        'sacrebleu, wer, cer.')
+                r = result_subset
+
             result[f'{metric_name}_{subset}'] = r
 
         subset_values = [result[f'{metric_name}_{subset}']
@@ -107,10 +112,8 @@ def multilingual_eval_fn(eval_dataset,
     for m in metrics:
         if m.name == 'sacrebleu':
             metric_names.append('BLEU')
-        elif m.name == 'wer':
-            metric_names.append('WER')
         else:
-            metric_names.append(m.name)
+            metric_names.append(m.name.upper())
 
     return lambda x: multilingual_eval(
         x,
