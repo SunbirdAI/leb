@@ -72,6 +72,10 @@
                 <li class="toctree-l2"><a class="reference internal" href="../08-translation-models/">Translation Models</a>
                 </li>
                 <li class="toctree-l2 current"><a class="reference internal current" href="./">ASR Models</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../10-tts-models/">TTS Models</a>
                 </li>
@@ -116,7 +120,81 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                
+                <h2 id="multilingual-asr-training-for-lugandaenglish-using-the-leb-module">Multilingual ASR Training for Luganda+English using the Leb Module</h2>
+<p>This tutorial provides a step-by-step guide on how to perform multilingual Automatic Speech Recognition (ASR) training for Luganda and English languages using the Leb module.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Before getting started, ensure that you have the following prerequisites:</p>
+<ul>
+<li>Python 3.x installed</li>
+<li>[optional] - Access to a Google Cloud account with storage access</li>
+<li>MLflow tracking credentials (username and password)</li>
+<li>[optional] Path to your service account JSON key file</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p>To begin, install the necessary dependencies by running the following commands:</p>
+<pre><code>!pip install -q jiwer evaluate
+!pip install -qU accelerate
+!pip install -q transformers[torch]
+!git clone https://github.com/jqug/leb.git
+!pip install -qr leb/requirements.txt
+!pip install -q mlflow psutil pynvml
+</code></pre>
+<p>These commands will install the required libraries, including Jiwer, Evaluate, Accelerate, Transformers, MLflow, and the Leb module.</p>
+<h3 id="configuration">Configuration</h3>
+<p>Create a YAML configuration file named asr_config.yml with the necessary settings for your training. Here's an example configuration:</p>
+<pre><code>train:
+  source:
+    language: [luganda, english]
+    # Add other training dataset configurations
+
+validation:
+  source:
+    language: [luganda, english]
+    # Add other validation dataset configurations
+
+pretrained_model: &quot;facebook/wav2vec2-large-xlsr-53&quot;
+pretrained_adapter: null
+
+Wav2Vec2ForCTC_args:
+  adapter_model_name: &quot;wav2vec2&quot;
+
+training_args:
+  output_dir: &quot;luganda_english_asr&quot;
+  # Add other training arguments
+</code></pre>
+<p>Load the configuration file in your Python script.</p>
+<h3 id="data-preparation">Data Preparation</h3>
+<ol>
+<li>Load the training and validation datasets using the Leb module.</li>
+<li>Create a tokenizer and processor based on the configuration.</li>
+<li>Prepare the datasets for training and validation.</li>
+</ol>
+<h3 id="model-setup">Model Setup</h3>
+<ol>
+<li>Load the pre-trained model and initialize the adapter layers.</li>
+<li>Define the compute metrics function.</li>
+<li>Set up the training arguments and create the trainer.</li>
+</ol>
+<h3 id="mlflow-integration">MLflow Integration</h3>
+<ol>
+<li>Set up MLflow tracking credentials and tracking URI.</li>
+<li>Set the MLflow experiment.</li>
+</ol>
+<h3 id="training-and-evaluation">Training and Evaluation</h3>
+<ol>
+<li>Start an MLflow run and train the model.</li>
+<li>Save the trained model and log artifacts.</li>
+</ol>
+<h3 id="usage">Usage</h3>
+<p>To use the trained model for inference, follow these steps:</p>
+<h3 id="load-the-trained-model-and-processor">Load the trained model and processor:</h3>
+<p>To use the trained model for inference, follow these steps:</p>
+<ol>
+<li>Load the trained model and processor:</li>
+</ol>
+<pre><code>model = Wav2Vec2ForCTC.from_pretrained(&quot;path/to/trained/model&quot;)
+processor = Wav2Vec2Processor.from_pretrained(&quot;path/to/processor&quot;)
+</code></pre>
               
             </div>
           </div><footer>
